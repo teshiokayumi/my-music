@@ -27,6 +27,15 @@
 git clone [https://github.com/あなたのユーザー名/my-music-player.git](https://github.com/あなたのユーザー名/my-music-player.git)
 cd my-music-player
 
+## アップデート内容　2026/1/17
+- Firestoreを利用したデータの永続化（保存機能）を実装しました。
+- アプリをリロードしても、入力した歌詞やプロンプトが保持されます。
+
+## 💡 重要な注意点
+- データベースの制限により、画像・音楽ファイルは1MB以下に圧縮して使用してください。
+- 1MBを超えると保存エラーが発生します。
+- 起動には別途Firebaseの設定が必要です。詳細はREADMEをご覧ください。
+
 
 
 <img width="1920" height="878" alt="My-Music-Player-Google-AI-Studio-01-15-2026_08_43_AM" src="https://github.com/user-attachments/assets/758fb317-8455-4a10-bbbd-6ae067171dc3" />
