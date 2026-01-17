@@ -29,13 +29,45 @@
   - **Storage**: 音源および画像ファイルの保存
 - **Styling**: CSS Modules (または Tailwind CSS)
 
-## セットアップ手順
+#### 1. Firebase設定
 
-### 1. リポジトリのクローン
+1. [Firebase Console](https://console.firebase.google.com/)でプロジェクトを作成
+2. プロジェクトの設定からAPIキーを取得
+3. `src/firebase.ts`にFirebaseの設定を記述
+
+```typescript
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+```
+
+#### 2. ローカル開発サーバーの起動
+
 ```bash
-git clone [https://github.com/あなたのユーザー名/my-music-player.git](https://github.com/あなたのユーザー名/my-music-player.git)
-cd my-music-player
+npm run dev
+```
 
+#### 3. ビルドとデプロイ
+
+```bash
+npm run build
+firebase deploy
+```
 
 
 
