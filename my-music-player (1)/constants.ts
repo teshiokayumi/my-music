@@ -3,7 +3,7 @@ import { Song } from './types';
 
 export const SONGS: Song[] = [
   {
-    id: 1,
+    id: '1',
     title: 'Ambient Electronic',
     artist: 'SoundHelix',
     genre: 'Electronic',
@@ -11,7 +11,7 @@ export const SONGS: Song[] = [
     coverArt: 'https://picsum.photos/seed/song1/300/300',
   },
   {
-    id: 2,
+    id: '2',
     title: 'Rock Anthem',
     artist: 'SoundHelix',
     genre: 'Rock',
@@ -19,7 +19,7 @@ export const SONGS: Song[] = [
     coverArt: 'https://picsum.photos/seed/song2/300/300',
   },
   {
-    id: 3,
+    id: '3',
     title: 'Acoustic Pop',
     artist: 'SoundHelix',
     genre: 'Pop',
@@ -27,7 +27,7 @@ export const SONGS: Song[] = [
     coverArt: 'https://picsum.photos/seed/song3/300/300',
   },
   {
-    id: 4,
+    id: '4',
     title: 'Reggae Vibes',
     artist: 'SoundHelix',
     genre: 'Reggae',
@@ -35,7 +35,7 @@ export const SONGS: Song[] = [
     coverArt: 'https://picsum.photos/seed/song4/300/300',
   },
   {
-    id: 5,
+    id: '5',
     title: 'Retro Funk',
     artist: 'SoundHelix',
     genre: 'Funk',
@@ -43,7 +43,7 @@ export const SONGS: Song[] = [
     coverArt: 'https://picsum.photos/seed/song5/300/300',
   },
   {
-    id: 6,
+    id: '6',
     title: 'Jazz Fusion',
     artist: 'SoundHelix',
     genre: 'Jazz',
@@ -51,7 +51,7 @@ export const SONGS: Song[] = [
     coverArt: 'https://picsum.photos/seed/song6/300/300',
   },
   {
-    id: 7,
+    id: '7',
     title: 'Classical Piece',
     artist: 'SoundHelix',
     genre: 'Classical',
