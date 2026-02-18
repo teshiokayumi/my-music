@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Song } from '../types';
+import { Song } from './types';
 
 interface SongListProps {
   songs: Song[];

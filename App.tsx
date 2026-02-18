@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Song } from './types';
-import SongList from './components/SongList';
-import AudioPlayer from './components/AudioPlayer';
+import SongList from './SongList';
+import AudioPlayer from './AudioPlayer';
 import { db, storage } from './firebase';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';

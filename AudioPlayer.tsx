@@ -1,6 +1,6 @@
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Song } from '../types';
+import { Song } from './types';
 
 // SVG Icons defined as components
 const PlayIcon = () => (
