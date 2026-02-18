@@ -1,0 +1,10 @@
+kind: "AppHostingConfig"
+schemaVersion: "v1"
+
+# サーバー側（Cloud Run）のスペックを強化します
+runConfig:
+  # メモリをデフォルト（通常256MB〜512MB）から1GB以上に増やします
+  memory: "1Gi"
+  # 処理のタイムアウト時間を延ばします（デフォルトは60秒）
+  cpu: 1
+  timeoutSeconds: 300 # 5分間まで許可

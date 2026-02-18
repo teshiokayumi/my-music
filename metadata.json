@@ -1,0 +1,5 @@
+{
+  "name": "My Music Player",
+  "description": "A web application built with React and Tailwind CSS that allows users to upload and listen to their own music tracks. It features a sleek audio player, search and filtering capabilities, and a simulated upload interface.",
+  "requestFramePermissions": []
+}

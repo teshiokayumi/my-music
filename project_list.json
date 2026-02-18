@@ -1,0 +1,38 @@
+{
+  "status": "success",
+  "result": [
+    {
+      "projectId": "healing-for-you",
+      "projectNumber": "77969695556",
+      "displayName": "healing-for-you",
+      "name": "projects/healing-for-you",
+      "resources": {
+        "hostingSite": "healing-for-you"
+      },
+      "state": "ACTIVE",
+      "etag": "1_71a861a5-e518-4080-9b38-b8e86334f49f"
+    },
+    {
+      "projectId": "my-music-1176b",
+      "projectNumber": "22760080509",
+      "displayName": "my music",
+      "name": "projects/my-music-1176b",
+      "resources": {
+        "hostingSite": "my-music-1176b"
+      },
+      "state": "ACTIVE",
+      "etag": "1_ec66c684-7f7a-4513-bfe6-4972263ff029"
+    },
+    {
+      "projectId": "sample-ee6fc",
+      "projectNumber": "587620563419",
+      "displayName": "sample",
+      "name": "projects/sample-ee6fc",
+      "resources": {
+        "hostingSite": "sample-ee6fc"
+      },
+      "state": "ACTIVE",
+      "etag": "1_f867f666-4c20-4e5e-93bd-9df1b8ce573f"
+    }
+  ]
+}
