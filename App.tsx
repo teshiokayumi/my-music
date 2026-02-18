@@ -3,8 +3,19 @@ import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { Song } from './types';
 import SongList from './components/SongList';
 import AudioPlayer from './components/AudioPlayer';
-import { db } from './firebase';
+import { db, storage } from './firebase';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+interface SongFormData {
+  title: string;
+  artist: string;
+  genre: string;
+  audioFile: File | null;
+  coverFile: File | null;
+  currentAudioUrl: string;
+  currentCoverUrl: string;
+}
 
 const App: React.FC = () => {
   const [songs, setSongs] = useState<Song[]>([]);
@@ -61,8 +72,33 @@ const App: React.FC = () => {
     setIsPlaying(true);
   }, [currentSong, filteredSongs]);
 
-  const handleSaveSong = async (songData: Omit<Song, 'id'>) => {
+  const handleSaveSong = async (data: SongFormData) => {
     try {
+      let audioUrl = data.currentAudioUrl;
+      let coverArt = data.currentCoverUrl;
+
+      // Upload audio if a new file is provided
+      if (data.audioFile) {
+        const audioRef = ref(storage, `audio/${Date.now()}_${data.audioFile.name}`);
+        await uploadBytes(audioRef, data.audioFile);
+        audioUrl = await getDownloadURL(audioRef);
+      }
+
+      // Upload cover if a new file is provided
+      if (data.coverFile) {
+        const coverRef = ref(storage, `images/${Date.now()}_${data.coverFile.name}`);
+        await uploadBytes(coverRef, data.coverFile);
+        coverArt = await getDownloadURL(coverRef);
+      }
+
+      const songData = {
+        title: data.title,
+        artist: data.artist,
+        genre: data.genre,
+        url: audioUrl,
+        coverArt: coverArt
+      };
+
       if (editingSong) {
         // Update existing
         await updateDoc(doc(db, "songs", editingSong.id), songData);
@@ -192,7 +228,7 @@ const App: React.FC = () => {
 
 interface SongFormProps {
   initialSong: Song | null;
-  onSubmit: (song: Omit<Song, 'id'>) => void;
+  onSubmit: (data: SongFormData) => void;
   onCancel: () => void;
 }
 
@@ -200,51 +236,83 @@ const SongForm: React.FC<SongFormProps> = ({ initialSong, onSubmit, onCancel }) 
   const [title, setTitle] = useState(initialSong?.title || '');
   const [artist, setArtist] = useState(initialSong?.artist || '');
   const [genre, setGenre] = useState(initialSong?.genre || '');
-  const [audioUrl, setAudioUrl] = useState(initialSong?.url || '');
-  const [coverArt, setCoverArt] = useState(initialSong?.coverArt || '');
+
+  // File objects for uploading
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+
+  // Preview URLs (either from existing song or local object URL for new file)
+  const [previewAudioUrl, setPreviewAudioUrl] = useState(initialSong?.url || '');
+  const [previewCoverUrl, setPreviewCoverUrl] = useState(initialSong?.coverArt || '');
+
   const [isProcessing, setIsProcessing] = useState(false);
 
   const audioInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+
+  // Clean up object URLs to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewAudioUrl && previewAudioUrl !== initialSong?.url && !previewAudioUrl.startsWith('http')) {
+        URL.revokeObjectURL(previewAudioUrl);
+      }
+      if (previewCoverUrl && previewCoverUrl !== initialSong?.coverArt && !previewCoverUrl.startsWith('http')) {
+        URL.revokeObjectURL(previewCoverUrl);
+      }
+    };
+  }, [initialSong]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'audio' | 'image') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (type === 'audio') {
-      // 修正後（5MBまで許可）
-      if (file.size > 5242880) {
-        alert("Audio file size must be less than 5MB");
+      // 修正後（50MBまで許可 - Storageなので大きくてOK）
+      if (file.size > 50 * 1024 * 1024) {
+        alert("Audio file size must be less than 50MB");
         return;
       }
-    } else if (type === 'image') {
-      // 修正後（5MBまで許可）
-      if (file.size > 5242880) {
-        alert("Image size must be less than 5MB");
+      setAudioFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewAudioUrl(url);
+    } else {
+      // 修正後（10MBまで許可 - Storageなので大きくてOK）
+      if (file.size > 10 * 1024 * 1024) {
+        alert("Image size must be less than 10MB");
         return;
       }
+      setCoverFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewCoverUrl(url);
     }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (type === 'image') {
-        setCoverArt(reader.result as string);
-      } else {
-        setAudioUrl(reader.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !artist || !genre || !audioUrl || !coverArt) {
-      alert("Please provide all track details and files.");
+    // Validate: Title, Artist, Genre are required.
+    // Files are required ONLY if it's a new song. If editing, we can keep existing URLs.
+    if (!title || !artist || !genre) {
+      alert("Please provide title, artist, and genre.");
       return;
     }
+
+    // For new song, files are required
+    if (!initialSong && (!audioFile || !coverFile)) {
+      alert("Please provide both audio and cover image files for a new track.");
+      return;
+    }
+
     setIsProcessing(true);
-    onSubmit({ title, artist, genre, url: audioUrl, coverArt });
-    setIsProcessing(false);
+    onSubmit({
+      title,
+      artist,
+      genre,
+      audioFile,
+      coverFile,
+      currentAudioUrl: initialSong?.url || '',
+      currentCoverUrl: initialSong?.coverArt || ''
+    });
+    // Note: ensure setIsProcessing(false) is handled by parent or component unmounts
   };
 
   return (
@@ -264,8 +332,8 @@ const SongForm: React.FC<SongFormProps> = ({ initialSong, onSubmit, onCancel }) 
               className="relative group cursor-pointer aspect-square bg-gray-950 rounded-3xl overflow-hidden border-2 border-dashed border-gray-800 hover:border-indigo-500 transition-all flex flex-col items-center justify-center shadow-inner"
               onClick={() => coverInputRef.current?.click()}
             >
-              {coverArt ? (
-                <img src={coverArt} alt="Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              {previewCoverUrl ? (
+                <img src={previewCoverUrl} alt="Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               ) : (
                 <div className="text-center p-6 space-y-3">
                   <div className="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center mx-auto text-indigo-400">
@@ -290,7 +358,7 @@ const SongForm: React.FC<SongFormProps> = ({ initialSong, onSubmit, onCancel }) 
                   onChange={(e) => handleFileChange(e, 'audio')}
                   className="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-white file:text-black hover:file:bg-indigo-50 cursor-pointer"
                 />
-                {audioUrl && <p className="mt-4 text-xs font-medium text-indigo-400 flex items-center gap-2">
+                {previewAudioUrl && <p className="mt-4 text-xs font-medium text-indigo-400 flex items-center gap-2">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
                   File linked and ready
                 </p>}
