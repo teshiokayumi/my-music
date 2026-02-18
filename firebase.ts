@@ -1,8 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
-// TODO: Replace the following with your app's Firebase project configuration
-// See: https://firebase.google.com/docs/web/setup#config-object
 const firebaseConfig = {
   apiKey: "AIzaSyBcJjlCK6GxJ0Gmxpb307txR8S2s5G1ho4",
   authDomain: "my-music-1176b.firebaseapp.com",
@@ -12,14 +11,6 @@ const firebaseConfig = {
   appId: "1:1026666666666:web:1176b"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firestore
-const db = getFirestore(app);
-
-// Initialize Storage
-import { getStorage } from "firebase/storage";
-const storage = getStorage(app);
-
-export { db, storage };
+export const db = getFirestore(app);
+export const storage = getStorage(app);
